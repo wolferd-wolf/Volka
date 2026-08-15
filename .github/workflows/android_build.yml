@@ -1,0 +1,51 @@
+name: "TEKNIK Android APK Build"
+
+on:
+  push:
+    branches: [ "TEKNIK", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: "Export Godot 4 Android APK"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Setup Java JDK"
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: "Setup Android SDK"
+        uses: android-actions/setup-android@v3
+
+      - name: "Setup Godot 4.3 Engine & Export Templates"
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          sudo mv Godot_v4.3-stable_linux.x86_64 /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+          
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.3.stable
+          unzip -q Godot_v4.3-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.3.stable/
+
+      - name: "Generate Debug Keystore"
+        run: |
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+
+      - name: "Build Android APK"
+        run: |
+          mkdir -p build/android
+          godot --headless --export-debug "Android APK" build/android/TEKNIK.apk
+
+      - name: "Upload APK Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: TEKNIK-Android-APK
+          path: build/android/TEKNIK.apk
+          if-no-files-found: error
