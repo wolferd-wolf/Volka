@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://teknik_main_scene"]
+
+[ext_resource type="Script" path="res://scripts/main_game_manager.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/world/world_chunk_manager.gd" id="2_world"]
+[ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="3_player"]
+[ext_resource type="Script" path="res://scripts/ui/mobile_hud.gd" id="4_hud"]
+
+[node name="MainGameManager" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.353, 0.353, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 0, 20, 0)
+shadow_enabled = true
+
+[node name="WorldChunkManager" type="Node3D" parent="."]
+script = ExtResource("2_world")
+
+[node name="PlayerController" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, 0)
+script = ExtResource("3_player")
+
+[node name="Camera3D" type="Camera3D" parent="PlayerController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="MobileHUD" type="CanvasLayer" parent="."]
+script = ExtResource("4_hud")
